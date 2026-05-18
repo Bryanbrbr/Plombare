@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { UrgencyBadge } from "@/components/UrgencyBadge";
 import { formatRelative, formatPhone } from "@/lib/format";
+import { problemMeta } from "@/lib/problemType";
 import type { Conversation } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -18,57 +19,160 @@ export default async function DashboardPage() {
 
   const convs = (conversations ?? []) as Conversation[];
 
+  // Stats simples
+  const urgentCount = convs.filter((c) => (c.urgency ?? 0) >= 4).length;
+  const rdvCount = convs.filter((c) => c.needs_appointment).length;
+  const pausedCount = convs.filter((c) => c.status === "paused").length;
+
   return (
     <>
-      <div className="flex items-baseline justify-between mb-4">
-        <h1 className="text-xl font-semibold">Conversations</h1>
-        <span className="text-sm text-slate-500">{convs.length} active{convs.length > 1 ? "s" : ""}</span>
+      {/* ── En-tête + stats ── */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-slate-900 mb-1">
+          Conversations
+        </h1>
+        <p className="text-sm text-slate-500">
+          {convs.length === 0
+            ? "Pas encore de demande client."
+            : `${convs.length} demande${convs.length > 1 ? "s" : ""} au total.`}
+        </p>
       </div>
 
-      {convs.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
-          <p className="text-slate-500 text-sm">
-            Aucune conversation pour le moment.
-            <br />
-            Dès qu'un client t'écrira sur WhatsApp, elle apparaîtra ici.
-          </p>
+      {convs.length > 0 && (
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <StatCard
+            label="Urgent"
+            value={urgentCount}
+            tone="red"
+            sub={urgentCount > 0 ? "à traiter vite" : "rien d'urgent"}
+          />
+          <StatCard
+            label="Rendez-vous"
+            value={rdvCount}
+            tone="amber"
+            sub="à planifier"
+          />
+          <StatCard
+            label="En pause"
+            value={pausedCount}
+            tone="slate"
+            sub="IA stoppée"
+          />
         </div>
+      )}
+
+      {/* ── Liste / empty state ── */}
+      {convs.length === 0 ? (
+        <EmptyState />
       ) : (
         <ul className="space-y-2">
           {convs.map((c) => (
-            <li key={c.id}>
-              <Link
-                href={`/dashboard/conversations/${c.id}`}
-                className="block bg-white rounded-xl border border-slate-200 px-4 py-3 hover:border-slate-400 transition-colors"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-slate-900 truncate">
-                        {c.client_name ?? formatPhone(c.client_number)}
-                      </span>
-                      {c.status === "paused" && (
-                        <span className="text-[10px] uppercase tracking-wide bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">
-                          pause
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-slate-600 truncate">
-                      {c.summary ?? c.problem_type ?? "Nouvelle conversation"}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    <UrgencyBadge urgency={c.urgency} />
-                    <span className="text-xs text-slate-400">
-                      {formatRelative(c.last_message_at)}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            </li>
+            <ConversationRow key={c.id} conv={c} />
           ))}
         </ul>
       )}
     </>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+
+function StatCard({
+  label,
+  value,
+  sub,
+  tone,
+}: {
+  label: string;
+  value: number;
+  sub: string;
+  tone: "red" | "amber" | "slate";
+}) {
+  const tones = {
+    red: "bg-red-50 border-red-100 text-red-900",
+    amber: "bg-amber-50 border-amber-100 text-amber-900",
+    slate: "bg-slate-50 border-slate-200 text-slate-900",
+  };
+  const labels = {
+    red: "text-red-700",
+    amber: "text-amber-700",
+    slate: "text-slate-600",
+  };
+  return (
+    <div className={`rounded-xl border px-3 py-3 ${tones[tone]}`}>
+      <div className={`text-xs font-medium uppercase tracking-wide ${labels[tone]}`}>
+        {label}
+      </div>
+      <div className="text-2xl font-bold mt-0.5">{value}</div>
+      <div className={`text-xs ${labels[tone]} mt-0.5`}>{sub}</div>
+    </div>
+  );
+}
+
+function ConversationRow({ conv }: { conv: Conversation }) {
+  const { emoji, label } = problemMeta(conv.problem_type);
+  return (
+    <li>
+      <Link
+        href={`/dashboard/conversations/${conv.id}`}
+        className="flex items-center gap-3 bg-white rounded-xl border border-slate-200 px-4 py-3 hover:border-blue-300 hover:shadow-sm transition-all"
+      >
+        <div
+          className="shrink-0 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xl"
+          aria-hidden="true"
+        >
+          {emoji}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className="font-medium text-slate-900 truncate">
+              {conv.client_name ?? formatPhone(conv.client_number)}
+            </span>
+            {conv.status === "paused" && (
+              <span className="text-[10px] uppercase tracking-wide bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">
+                pause
+              </span>
+            )}
+            {conv.needs_appointment && (
+              <span className="text-[10px] uppercase tracking-wide bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">
+                RDV
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-slate-600 truncate">
+            <span className="text-slate-400">{label}</span>
+            {conv.summary && <span> · {conv.summary}</span>}
+          </p>
+        </div>
+
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          <UrgencyBadge urgency={conv.urgency} />
+          <span className="text-xs text-slate-400">
+            {formatRelative(conv.last_message_at)}
+          </span>
+        </div>
+      </Link>
+    </li>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-10 sm:p-14 text-center">
+      <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-50 text-blue-600 mb-4">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+        </svg>
+      </div>
+      <h2 className="text-base font-semibold text-slate-900 mb-1">
+        Aucune conversation pour le moment
+      </h2>
+      <p className="text-sm text-slate-500 max-w-sm mx-auto">
+        Dès qu'un client t'écrira sur WhatsApp,
+        <br />
+        sa demande apparaîtra ici, qualifiée par l'IA.
+      </p>
+    </div>
   );
 }

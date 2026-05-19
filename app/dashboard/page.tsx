@@ -19,10 +19,23 @@ export default async function DashboardPage() {
 
   const convs = (conversations ?? []) as Conversation[];
 
-  // Stats simples
-  const urgentCount = convs.filter((c) => (c.urgency ?? 0) >= 4).length;
-  const rdvCount = convs.filter((c) => c.needs_appointment).length;
-  const pausedCount = convs.filter((c) => c.status === "paused").length;
+  // Stats NON-OVERLAPPANTES : chaque conv tombe dans UN seul bucket par priorité.
+  // pause > urgent > à planifier > (autre, pas dans les stats).
+  let urgentCount = 0;
+  let toPlanCount = 0;
+  let pausedCount = 0;
+
+  for (const c of convs) {
+    if (c.status === "paused") {
+      pausedCount++;
+    } else if ((c.urgency ?? 0) >= 4) {
+      urgentCount++;
+    } else if (c.needs_appointment) {
+      toPlanCount++;
+    }
+  }
+
+  const actionableCount = urgentCount + toPlanCount + pausedCount;
 
   return (
     <>
@@ -34,29 +47,31 @@ export default async function DashboardPage() {
         <p className="text-sm text-slate-500">
           {convs.length === 0
             ? "Pas encore de demande client."
-            : `${convs.length} demande${convs.length > 1 ? "s" : ""} au total.`}
+            : actionableCount === 0
+            ? `${convs.length} conversation${convs.length > 1 ? "s" : ""} · rien d'action immédiate ✨`
+            : `${convs.length} conversation${convs.length > 1 ? "s" : ""} · ${actionableCount} demande${actionableCount > 1 ? "s" : ""} à traiter`}
         </p>
       </div>
 
-      {convs.length > 0 && (
+      {actionableCount > 0 && (
         <div className="grid grid-cols-3 gap-3 mb-6">
           <StatCard
-            label="Urgent"
+            label="À rappeler"
             value={urgentCount}
             tone="red"
-            sub={urgentCount > 0 ? "à traiter vite" : "rien d'urgent"}
+            sub={urgentCount > 0 ? "agir maintenant" : "rien d'urgent"}
           />
           <StatCard
-            label="Rendez-vous"
-            value={rdvCount}
+            label="À planifier"
+            value={toPlanCount}
             tone="amber"
-            sub="à planifier"
+            sub={toPlanCount > 0 ? "caler un RDV" : "rien à planifier"}
           />
           <StatCard
             label="En pause"
             value={pausedCount}
             tone="slate"
-            sub="IA stoppée"
+            sub={pausedCount > 0 ? "à toi de répondre" : "IA active partout"}
           />
         </div>
       )}

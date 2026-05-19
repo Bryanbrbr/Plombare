@@ -17,6 +17,15 @@ export const metadata: Metadata = {
     locale: "fr_FR",
     type: "website",
   },
+  // ── Métadonnées PWA / iOS Web App ─────────────────
+  appleWebApp: {
+    capable: true,
+    title: "Plombare",
+    statusBarStyle: "default",
+  },
+  formatDetection: {
+    telephone: false, // Désactive l'auto-détection iOS sur les numéros (on a déjà nos liens tel: contrôlés)
+  },
 };
 
 export const viewport: Viewport = {

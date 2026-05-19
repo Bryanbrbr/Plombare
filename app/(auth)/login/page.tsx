@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { LogoWithText } from "@/components/Logo";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
@@ -126,9 +127,16 @@ export default function LoginPage() {
           </div>
 
           {/* Footer */}
-          <p className="text-center text-xs text-slate-400 mt-6">
-            Pas encore de compte ? Contacte-nous pour l'activation.
-          </p>
+          <div className="text-center mt-6">
+            <p className="text-xs text-slate-400 mb-3">
+              Pas encore de compte ?
+            </p>
+            <WhatsAppButton
+              label="Me contacter pour activer Plombare"
+              variant="secondary"
+              className="text-xs"
+            />
+          </div>
         </div>
       </div>
     </main>

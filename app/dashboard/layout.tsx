@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Artisan } from "@/lib/types";
 import { LogoWithText } from "@/components/Logo";
 import { Avatar } from "@/components/Avatar";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 export const dynamic = "force-dynamic";
 
@@ -44,8 +45,16 @@ export default async function DashboardLayout({
             </code>{" "}
             est créé mais aucun profil artisan n'y est rattaché.
             <br />
-            Contacte l'admin Plombare pour finaliser ta configuration.
+            Envoie-moi un WhatsApp pour qu'on finalise ta configuration en 2 min.
           </p>
+
+          <WhatsAppButton
+            message={`Bonjour Bryan, je viens de créer mon compte Plombare avec l'email ${user.email}. Peux-tu finaliser ma configuration s'il te plaît ?`}
+            label="Me contacter sur WhatsApp"
+            variant="primary"
+            className="w-full justify-center mb-4"
+          />
+
           <form action="/api/auth/signout" method="post">
             <button className="text-sm text-slate-500 hover:text-slate-900 underline underline-offset-2">
               Se déconnecter

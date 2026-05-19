@@ -54,24 +54,27 @@ export default async function DashboardPage() {
       </div>
 
       {actionableCount > 0 && (
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
           <StatCard
+            emoji="📞"
             label="À rappeler"
             value={urgentCount}
-            tone="red"
+            tone="rose"
             sub={urgentCount > 0 ? "agir maintenant" : "rien d'urgent"}
           />
           <StatCard
+            emoji="📅"
             label="À planifier"
             value={toPlanCount}
             tone="amber"
-            sub={toPlanCount > 0 ? "caler un RDV" : "rien à planifier"}
+            sub={toPlanCount > 0 ? "caler un RDV" : "tout est calé"}
           />
           <StatCard
+            emoji="💬"
             label="En pause"
             value={pausedCount}
             tone="slate"
-            sub={pausedCount > 0 ? "à toi de répondre" : "IA active partout"}
+            sub={pausedCount > 0 ? "à toi de jouer" : "IA active"}
           />
         </div>
       )}
@@ -93,33 +96,59 @@ export default async function DashboardPage() {
 // ────────────────────────────────────────────────────────────
 
 function StatCard({
+  emoji,
   label,
   value,
   sub,
   tone,
 }: {
+  emoji: string;
   label: string;
   value: number;
   sub: string;
-  tone: "red" | "amber" | "slate";
+  tone: "rose" | "amber" | "slate";
 }) {
+  const isZero = value === 0;
+
   const tones = {
-    red: "bg-red-50 border-red-100 text-red-900",
-    amber: "bg-amber-50 border-amber-100 text-amber-900",
-    slate: "bg-slate-50 border-slate-200 text-slate-900",
+    rose: {
+      bg: "bg-rose-50",
+      border: "border-rose-100",
+      number: "text-rose-600",
+    },
+    amber: {
+      bg: "bg-amber-50",
+      border: "border-amber-100",
+      number: "text-amber-600",
+    },
+    slate: {
+      bg: "bg-slate-50",
+      border: "border-slate-200",
+      number: "text-slate-600",
+    },
   };
-  const labels = {
-    red: "text-red-700",
-    amber: "text-amber-700",
-    slate: "text-slate-600",
-  };
+  const t = tones[tone];
+
   return (
-    <div className={`rounded-xl border px-3 py-3 ${tones[tone]}`}>
-      <div className={`text-xs font-medium uppercase tracking-wide ${labels[tone]}`}>
+    <div
+      className={`rounded-2xl border ${t.border} ${t.bg} p-4 sm:p-5 text-center transition-opacity ${
+        isZero ? "opacity-60" : ""
+      }`}
+    >
+      <div className="text-2xl sm:text-3xl mb-1 leading-none" aria-hidden="true">
+        {emoji}
+      </div>
+      <div
+        className={`text-3xl sm:text-4xl font-bold leading-none mb-2 ${
+          isZero ? "text-slate-300" : t.number
+        }`}
+      >
+        {value}
+      </div>
+      <div className="text-xs sm:text-sm font-semibold text-slate-900">
         {label}
       </div>
-      <div className="text-2xl font-bold mt-0.5">{value}</div>
-      <div className={`text-xs ${labels[tone]} mt-0.5`}>{sub}</div>
+      <div className="text-[11px] text-slate-500 mt-0.5">{sub}</div>
     </div>
   );
 }

@@ -118,7 +118,7 @@ export default function LoginPage() {
                 </button>
                 {error && <ErrorBox message={error} />}
                 <p className="text-xs text-slate-400 text-center pt-1">
-                  On t'envoie un code à 6 chiffres par email.
+                  On t'envoie un code de connexion par email.
                 </p>
               </form>
             ) : (
@@ -135,7 +135,7 @@ export default function LoginPage() {
                     Vérifie tes emails
                   </h2>
                   <p className="text-sm text-slate-500 mt-1">
-                    On a envoyé un code à 6 chiffres à
+                    On a envoyé un code de connexion à
                     <br />
                     <strong className="text-slate-700">{email}</strong>
                   </p>
@@ -156,20 +156,20 @@ export default function LoginPage() {
                     inputMode="numeric"
                     autoComplete="one-time-code"
                     pattern="[0-9]*"
-                    maxLength={6}
-                    placeholder="123456"
+                    maxLength={10}
+                    placeholder="Code reçu"
                     value={code}
                     onChange={(e) =>
-                      setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+                      setCode(e.target.value.replace(/\D/g, "").slice(0, 10))
                     }
-                    className="w-full rounded-lg border border-slate-300 px-3 py-3 text-center text-2xl font-bold tracking-[0.4em] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-3 text-center text-2xl font-bold tracking-[0.25em] placeholder:text-base placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
                     disabled={loading}
                   />
                 </div>
 
                 <button
                   type="submit"
-                  disabled={loading || code.length !== 6}
+                  disabled={loading || code.length < 6}
                   className="w-full rounded-lg bg-blue-600 text-white px-4 py-3 text-base font-semibold hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center justify-center gap-2"
                 >
                   {loading ? (

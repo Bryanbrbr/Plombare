@@ -179,18 +179,20 @@ function MessageBubble({ message }: { message: Message }) {
         <div className={`rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap leading-relaxed shadow-sm ${bubble}`}>
           {message.body}
           {message.media_url && (
-            <div className="mt-2">
-              <a
-                href={message.media_url}
-                target="_blank"
-                rel="noreferrer"
-                className={`inline-flex items-center gap-1 text-xs underline underline-offset-2 ${
-                  isClient ? "text-slate-500" : "text-white/80"
-                }`}
-              >
-                📎 Photo jointe
-              </a>
-            </div>
+            <a
+              href={`/api/media/${message.id}`}
+              target="_blank"
+              rel="noreferrer"
+              className={`block ${message.body ? "mt-2" : ""}`}
+              title="Ouvrir la photo en grand"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/api/media/${message.id}`}
+                alt="Photo envoyée par le client"
+                className="rounded-lg max-w-[240px] w-full h-auto border border-black/10"
+              />
+            </a>
           )}
         </div>
         <div

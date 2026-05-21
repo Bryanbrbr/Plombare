@@ -6,6 +6,7 @@ import { Avatar } from "@/components/Avatar";
 import { formatPhone, formatTime, formatRelative } from "@/lib/format";
 import { problemMeta } from "@/lib/problemType";
 import type { Conversation, Message } from "@/lib/types";
+import { ReplyBox } from "./ReplyBox";
 
 export const dynamic = "force-dynamic";
 
@@ -146,15 +147,8 @@ export default async function ConversationPage({
         })}
       </div>
 
-      {/* ── Footer info ── */}
-      <div className="mt-8 mb-4 rounded-xl bg-slate-50 border border-slate-200 p-4 text-xs text-slate-500 text-center">
-        <p className="mb-1">
-          💬 Pour répondre, écris directement au client depuis WhatsApp sur ton téléphone.
-        </p>
-        <p>
-          ⏸️ Le client peut écrire « <strong>humain</strong> » ou « <strong>stop</strong> » pour mettre l'IA en pause.
-        </p>
-      </div>
+      {/* ── Zone de réponse artisan ── */}
+      <ReplyBox conversationId={conv.id} status={conv.status} />
     </>
   );
 }

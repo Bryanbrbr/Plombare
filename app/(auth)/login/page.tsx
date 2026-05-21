@@ -19,6 +19,8 @@ export default function LoginPage() {
   // ── Étape 1 : envoyer le code ──────────────────────────
   async function sendCode(e: React.FormEvent) {
     e.preventDefault();
+    if (loading) return; // garde anti double-submit
+
     setLoading(true);
     setError(null);
 
@@ -36,6 +38,10 @@ export default function LoginPage() {
   // ── Étape 2 : vérifier le code ─────────────────────────
   async function verifyCode(e: React.FormEvent) {
     e.preventDefault();
+    // Garde anti double-submit : le code OTP est à usage unique.
+    // Un 2e clic enverrait le même code déjà consommé → fausse erreur.
+    if (loading) return;
+
     setLoading(true);
     setError(null);
 
@@ -46,10 +52,13 @@ export default function LoginPage() {
       type: "email",
     });
 
-    setLoading(false);
     if (error) {
+      // Échec réel → on réactive le formulaire
+      setLoading(false);
       setError("Code incorrect ou expiré. Réessaie.");
     } else {
+      // Succès → on garde loading actif (bouton désactivé, spinner)
+      // pendant que la page navigue, pour empêcher tout 2e envoi.
       router.push("/dashboard");
       router.refresh();
     }

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { UrgencyBadge } from "@/components/UrgencyBadge";
 import { Avatar } from "@/components/Avatar";
-import { formatPhone, formatTime, formatRelative } from "@/lib/format";
+import { formatPhone, formatTime, formatRelative, parisDayKey } from "@/lib/format";
 import { problemMeta } from "@/lib/problemType";
 import type { Conversation, Message } from "@/lib/types";
 import { ReplyBox } from "./ReplyBox";
@@ -202,23 +202,21 @@ function MessageBubble({ message }: { message: Message }) {
 }
 
 function DateSeparator({ iso }: { iso: string }) {
-  const d = new Date(iso);
-  const now = new Date();
+  const nowIso = new Date().toISOString();
+  const yesterdayIso = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
   let label: string;
-  if (sameDay(iso, now.toISOString())) {
+  if (sameDay(iso, nowIso)) {
     label = "Aujourd'hui";
+  } else if (sameDay(iso, yesterdayIso)) {
+    label = "Hier";
   } else {
-    const yesterday = new Date(now);
-    yesterday.setDate(now.getDate() - 1);
-    if (sameDay(iso, yesterday.toISOString())) {
-      label = "Hier";
-    } else {
-      label = d.toLocaleDateString("fr-FR", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-      });
-    }
+    label = new Date(iso).toLocaleDateString("fr-FR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      timeZone: "Europe/Paris",
+    });
   }
   return (
     <div className="flex items-center gap-3 my-4">
@@ -231,12 +229,7 @@ function DateSeparator({ iso }: { iso: string }) {
   );
 }
 
+// Compare deux instants sur le fuseau Europe/Paris (et pas UTC du serveur).
 function sameDay(a: string, b: string): boolean {
-  const da = new Date(a);
-  const db = new Date(b);
-  return (
-    da.getFullYear() === db.getFullYear() &&
-    da.getMonth() === db.getMonth() &&
-    da.getDate() === db.getDate()
-  );
+  return parisDayKey(a) === parisDayKey(b);
 }

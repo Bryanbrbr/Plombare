@@ -40,7 +40,28 @@ export async function sendReply(
     .maybeSingle<{ twilio_number: string }>();
   if (!artisan) return { error: "Artisan introuvable." };
 
-  // 2. Envoi WhatsApp — texte brut, aucun préfixe
+  // 2. Vérif fenêtre WhatsApp 24h : on ne peut envoyer un message libre
+  // que dans les 24h après le dernier message du client.
+  const { data: lastClientMsg } = await supabase
+    .from("messages")
+    .select("created_at")
+    .eq("conversation_id", conversationId)
+    .eq("role", "client")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle<{ created_at: string }>();
+
+  if (lastClientMsg) {
+    const ageMs = Date.now() - new Date(lastClientMsg.created_at).getTime();
+    if (ageMs > 24 * 60 * 60 * 1000) {
+      return {
+        error:
+          "Le client n'a pas écrit depuis plus de 24h. WhatsApp interdit de lui envoyer un message libre — rappelle-le par téléphone (bouton Appeler).",
+      };
+    }
+  }
+
+  // 3. Envoi WhatsApp — texte brut, aucun préfixe
   try {
     await sendWhatsApp({
       from: artisan.twilio_number,
@@ -55,7 +76,7 @@ export async function sendReply(
     };
   }
 
-  // 3. Enregistrer le message + mettre l'IA en pause
+  // 4. Enregistrer le message + mettre l'IA en pause
   const db = createAdminClient();
   await db.from("messages").insert({
     conversation_id: conversationId,

@@ -1,4 +1,10 @@
 // Helpers de formatage français — minimalistes.
+//
+// ⚠️ Les pages sont rendues côté serveur (Vercel, fuseau UTC).
+// Sans `timeZone` explicite, toLocale* afficherait l'heure UTC.
+// On force donc Europe/Paris partout.
+
+const TZ = "Europe/Paris";
 
 export function formatRelative(iso: string): string {
   const date = new Date(iso);
@@ -16,16 +22,30 @@ export function formatRelative(iso: string): string {
   if (days === 1) return "hier";
   if (days < 7) return `il y a ${days} j`;
 
-  return date.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+  return date.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "short",
+    timeZone: TZ,
+  });
 }
 
 export function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString("fr-FR", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: TZ,
   });
 }
 
 export function formatPhone(whatsappAddr: string): string {
   return whatsappAddr.replace(/^whatsapp:/, "");
+}
+
+/**
+ * Clé de date (YYYY-MM-DD) calculée dans le fuseau Europe/Paris.
+ * Sert à comparer si deux instants tombent le même jour côté France.
+ */
+export function parisDayKey(iso: string): string {
+  // Le locale en-CA produit le format YYYY-MM-DD.
+  return new Date(iso).toLocaleDateString("en-CA", { timeZone: TZ });
 }

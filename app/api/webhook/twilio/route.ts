@@ -161,8 +161,36 @@ Réponds "reprendre" pour relancer l'IA.`,
     return twimlOk();
   }
 
-  // ─── 9. Si conv déjà en pause → on enregistre mais on ne répond pas ──
+  // ─── 9. Conv en pause → l'artisan gère cette conversation manuellement ──
+  // On n'invoque pas l'IA, MAIS on prévient l'artisan que le client a
+  // écrit — sinon il raterait les messages d'une conv qu'il a reprise.
   if (conv.status === "paused") {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+    const link = appUrl
+      ? `${appUrl}/dashboard/conversations/${conv.id}`
+      : conv.id;
+    const clientLabel = conv.client_name ?? from.replace("whatsapp:", "");
+    const preview = body
+      ? `"${body.length > 200 ? body.slice(0, 200) + "…" : body}"`
+      : mediaUrls.length > 0
+      ? "📷 (photo)"
+      : "(message vide)";
+
+    try {
+      await sendWhatsApp({
+        from: artisan.twilio_number,
+        to: artisan.notify_number,
+        body: `💬 ${clientLabel} vous a répondu :
+${preview}
+
+${link}`,
+      });
+    } catch (err) {
+      // Une notif ratée ne doit jamais faire échouer le webhook :
+      // le message client est déjà enregistré en base (étape 7).
+      console.error("[webhook] notif conv en pause échouée", err);
+    }
+
     return twimlOk();
   }
 

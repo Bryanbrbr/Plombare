@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { UrgencyBadge } from "@/components/UrgencyBadge";
+import { RealtimeRefresh } from "@/components/RealtimeRefresh";
 import { formatRelative, formatPhone } from "@/lib/format";
 import { problemMeta } from "@/lib/problemType";
 import type { Conversation } from "@/lib/types";
@@ -39,6 +40,9 @@ export default async function DashboardPage() {
 
   return (
     <>
+      {/* Abonnement temps réel : refresh auto à chaque nouveau message */}
+      <RealtimeRefresh />
+
       {/* ── En-tête + stats ── */}
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-slate-900 mb-1">

@@ -7,6 +7,7 @@ import { formatPhone, formatTime, formatRelative, parisDayKey } from "@/lib/form
 import { problemMeta } from "@/lib/problemType";
 import type { Conversation, Message } from "@/lib/types";
 import { ReplyBox } from "./ReplyBox";
+import { RealtimeRefresh } from "@/components/RealtimeRefresh";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +39,9 @@ export default async function ConversationPage({
 
   return (
     <>
+      {/* Abonnement temps réel sur les messages de CETTE conv */}
+      <RealtimeRefresh filter={`conversation_id=eq.${conv.id}`} />
+
       <Link
         href="/dashboard"
         className="text-sm text-slate-500 hover:text-slate-900 inline-flex items-center gap-1 mb-4 transition-colors"

@@ -92,3 +92,11 @@ create policy "artisan reads own messages"
 --   'whatsapp:+33612345678',                 -- numéro Twilio du business
 --   'whatsapp:+33699999999'                  -- son perso pour notifs urgentes
 -- );
+
+-- ============================================================
+-- REALTIME — activer les notifications live sur le dashboard
+-- À exécuter UNE fois pour que le composant <RealtimeRefresh />
+-- reçoive les events INSERT en temps réel.
+-- ============================================================
+alter publication supabase_realtime add table messages;
+alter publication supabase_realtime add table conversations;

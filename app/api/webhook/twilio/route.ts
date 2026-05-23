@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendWhatsApp, verifyTwilioSignature } from "@/lib/twilio";
+import {
+  sendWhatsApp,
+  verifyTwilioSignature,
+  fetchTwilioMedia,
+} from "@/lib/twilio";
 import { analyze } from "@/lib/claude";
+import { transcribeAudio } from "@/lib/whisper";
 import type { Conversation } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -42,14 +47,23 @@ export async function POST(req: NextRequest) {
   // ─── 3. Extraction champs Twilio ─────────────────────────
   const from = params.From;                 // expéditeur (client OU artisan)
   const to = params.To;                     // numéro Twilio business
-  const body = (params.Body ?? "").trim();
+  let body = (params.Body ?? "").trim();    // mutable : enrichi par la transcription vocale
   const profileName = params.ProfileName;   // nom WhatsApp éventuel
   const numMedia = parseInt(params.NumMedia ?? "0", 10);
   const mediaUrls: string[] = [];
+  const mediaTypes: string[] = [];          // MIME type de chaque média (image/jpeg, audio/ogg…)
   for (let i = 0; i < numMedia; i++) {
     const u = params[`MediaUrl${i}`];
-    if (u) mediaUrls.push(u);
+    const t = params[`MediaContentType${i}`];
+    if (u) {
+      mediaUrls.push(u);
+      mediaTypes.push(t ?? "");
+    }
   }
+
+  // Variables remplies par le tri audio/image (étape 6.5 ci-dessous)
+  let storedMediaUrl: string | null = null;
+  const imageMediaUrls: string[] = [];
 
   if (!from || !to) {
     console.warn("[webhook] champs From/To manquants");
@@ -125,12 +139,42 @@ export async function POST(req: NextRequest) {
     return twimlOk();
   }
 
+  // ─── 6.5. Tri des médias : audio → transcription, image → vision Claude ──
+  if (mediaUrls.length > 0) {
+    const firstType = (mediaTypes[0] ?? "").toLowerCase();
+
+    if (firstType.startsWith("audio/")) {
+      // Message vocal → Whisper. On stocke uniquement la transcription
+      // (pas le fichier audio — la version texte suffit).
+      try {
+        const audio = await fetchTwilioMedia(mediaUrls[0]);
+        const audioBuf = Buffer.from(audio.data, "base64");
+        const transcription = await transcribeAudio(audioBuf, audio.media_type);
+        body = body
+          ? `${body}\n\n🎙️ ${transcription}`
+          : `🎙️ ${transcription}`;
+      } catch (err) {
+        console.error("[webhook] transcription Whisper échouée", err);
+        body = body || "🎙️ (message vocal — transcription indisponible)";
+      }
+    } else {
+      // Image / autre média visuel → on garde l'URL pour l'affichage
+      // dashboard ET on la passe à Claude pour qu'il analyse l'image.
+      storedMediaUrl = mediaUrls[0];
+      for (let i = 0; i < mediaUrls.length; i++) {
+        if ((mediaTypes[i] ?? "").toLowerCase().startsWith("image/")) {
+          imageMediaUrls.push(mediaUrls[i]);
+        }
+      }
+    }
+  }
+
   // ─── 7. Insert message client ─────────────────────────────
   await db.from("messages").insert({
     conversation_id: conv.id,
     role: "client",
     body: body || null,
-    media_url: mediaUrls[0] ?? null,
+    media_url: storedMediaUrl,
   });
 
   // ─── 8. Détection mot-clé pause ──────────────────────────
@@ -172,7 +216,7 @@ Réponds "reprendre" pour relancer l'IA.`,
     const clientLabel = conv.client_name ?? from.replace("whatsapp:", "");
     const preview = body
       ? `"${body.length > 200 ? body.slice(0, 200) + "…" : body}"`
-      : mediaUrls.length > 0
+      : storedMediaUrl
       ? "📷 (photo)"
       : "(message vide)";
 
@@ -210,7 +254,7 @@ ${link}`,
     qualification = await analyze({
       artisanName: artisan.name,
       history,
-      newMessage: { body, mediaUrls },
+      newMessage: { body, mediaUrls: imageMediaUrls },
     });
   } catch (err) {
     console.error("[webhook] Claude a échoué", err);

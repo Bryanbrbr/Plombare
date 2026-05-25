@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { bulkSetStatus } from "./actions";
+import { SwipeableRow } from "./SwipeableRow";
 import { formatRelative, formatPhone } from "@/lib/format";
 import type { Conversation } from "@/lib/types";
 
@@ -54,6 +55,18 @@ export function InboxList({
       }
     });
   }
+
+  // Swipe-to-archive (mobile + drag souris) : archive (ou désarchive
+  // en vue archive) une conv en swipant vers la gauche.
+  function handleSwipe(conversationId: string) {
+    const targetStatus = mode === "archive" ? "open" : "closed";
+    startTransition(async () => {
+      await bulkSetStatus([conversationId], targetStatus);
+      router.refresh();
+    });
+  }
+
+  const swipeActionLabel = mode === "archive" ? "Désarchiver" : "Archiver";
 
   const actionLabel = mode === "archive" ? "Désarchiver" : "Archiver";
 
@@ -108,13 +121,30 @@ export function InboxList({
       {/* ─── Liste ─── */}
       <ul className="space-y-1">
         {convs.map((c) => (
-          <Row
-            key={c.id}
-            conv={c}
-            selectionMode={selectionMode}
-            checked={selected.has(c.id)}
-            onToggle={() => toggle(c.id)}
-          />
+          <li key={c.id}>
+            {selectionMode ? (
+              // En mode multi-sélection, pas de swipe (la row est un bouton)
+              <Row
+                conv={c}
+                selectionMode={true}
+                checked={selected.has(c.id)}
+                onToggle={() => toggle(c.id)}
+              />
+            ) : (
+              // En mode normal, on permet le swipe-to-archive
+              <SwipeableRow
+                onCommit={() => handleSwipe(c.id)}
+                actionLabel={swipeActionLabel}
+              >
+                <Row
+                  conv={c}
+                  selectionMode={false}
+                  checked={false}
+                  onToggle={() => {}}
+                />
+              </SwipeableRow>
+            )}
+          </li>
         ))}
       </ul>
     </>
@@ -235,17 +265,13 @@ function Row({
   const rowClass =
     "block w-full text-left px-3.5 py-3 rounded-lg bg-slate-100 hover:bg-slate-200 active:bg-slate-300 transition-colors";
 
-  return (
-    <li>
-      {selectionMode ? (
-        <button onClick={onToggle} className={rowClass}>
-          {innerContent}
-        </button>
-      ) : (
-        <Link href={`/dashboard/conversations/${conv.id}`} className={rowClass}>
-          {innerContent}
-        </Link>
-      )}
-    </li>
+  return selectionMode ? (
+    <button onClick={onToggle} className={rowClass}>
+      {innerContent}
+    </button>
+  ) : (
+    <Link href={`/dashboard/conversations/${conv.id}`} className={rowClass}>
+      {innerContent}
+    </Link>
   );
 }

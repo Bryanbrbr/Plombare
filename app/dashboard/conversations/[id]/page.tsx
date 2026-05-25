@@ -88,30 +88,6 @@ export default async function ConversationPage({
           </a>
         </p>
 
-        {/* Actions compactes */}
-        <div className="flex gap-2 mt-3">
-          <a
-            href={telLink}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-colors"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-            </svg>
-            Appeler
-          </a>
-          <a
-            href={waLink}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-colors"
-          >
-            WhatsApp
-          </a>
-          <div className="ml-auto">
-            <ArchiveButton conversationId={conv.id} isClosed={isClosed} />
-          </div>
-        </div>
-
         {/* Meta ligne unique discrète */}
         {metaParts.length > 0 && (
           <p className="mt-3 text-xs text-slate-500">
@@ -136,8 +112,32 @@ export default async function ConversationPage({
         })}
       </div>
 
-      {/* ── Zone de réponse ── */}
-      <ReplyBox conversationId={conv.id} status={conv.status} />
+      {/* ── Bandeau sticky : actions + zone de réponse ── */}
+      <div className="sticky bottom-0 -mx-4 px-4 bg-white border-t border-slate-100 pt-3 pb-2 mt-5">
+        <div className="flex gap-2 mb-2">
+          <a
+            href={telLink}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+            </svg>
+            Appeler
+          </a>
+          <a
+            href={waLink}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            WhatsApp
+          </a>
+          <div className="ml-auto">
+            <ArchiveButton conversationId={conv.id} isClosed={isClosed} />
+          </div>
+        </div>
+        <ReplyBox conversationId={conv.id} status={conv.status} />
+      </div>
     </>
   );
 }
@@ -178,6 +178,12 @@ function Bubble({
 
   const label = isClient ? "client" : isArtisan ? "toi" : "ia";
 
+  // Heuristique : si le body commence par 🎙️, c'est un vocal transcrit
+  // → on affiche un lecteur audio (en plus du texte de la transcription).
+  // Sinon si media_url est défini → c'est une image → on affiche la photo.
+  const isVoice = message.body?.startsWith("🎙️") ?? false;
+  const hasMedia = !!message.media_url;
+
   return (
     <div className={`flex ${align}`}>
       <div className="max-w-[80%] sm:max-w-[75%]">
@@ -185,7 +191,17 @@ function Bubble({
           className={`${radius} px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${bubble}`}
         >
           {message.body}
-          {message.media_url && (
+          {hasMedia && isVoice && (
+            <audio
+              controls
+              preload="none"
+              src={`/api/media/${message.id}`}
+              className={`block ${message.body ? "mt-2" : ""} w-full max-w-[240px] h-9`}
+            >
+              Votre navigateur ne lit pas l'audio.
+            </audio>
+          )}
+          {hasMedia && !isVoice && (
             <a
               href={`/api/media/${message.id}`}
               target="_blank"

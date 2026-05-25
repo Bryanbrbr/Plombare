@@ -144,8 +144,9 @@ export async function POST(req: NextRequest) {
     const firstType = (mediaTypes[0] ?? "").toLowerCase();
 
     if (firstType.startsWith("audio/")) {
-      // Message vocal → Whisper. On stocke uniquement la transcription
-      // (pas le fichier audio — la version texte suffit).
+      // Message vocal → Whisper pour la transcription affichée dans la bulle.
+      // On garde aussi l'URL audio originale pour que l'artisan puisse
+      // écouter le vocal en plus de lire la transcription.
       try {
         const audio = await fetchTwilioMedia(mediaUrls[0]);
         const audioBuf = Buffer.from(audio.data, "base64");
@@ -157,6 +158,7 @@ export async function POST(req: NextRequest) {
         console.error("[webhook] transcription Whisper échouée", err);
         body = body || "🎙️ (message vocal — transcription indisponible)";
       }
+      storedMediaUrl = mediaUrls[0]; // pour lecture audio dans le dashboard
     } else {
       // Image / autre média visuel → on garde l'URL pour l'affichage
       // dashboard ET on la passe à Claude pour qu'il analyse l'image.

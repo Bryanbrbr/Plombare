@@ -39,7 +39,7 @@ export function ReplyBox({
   }
 
   return (
-    <div className="mt-5 pt-3 border-t border-slate-100">
+    <div>
       {status === "paused" && (
         <div className="flex justify-between items-center mb-2 px-1">
           <span className="text-[11px] text-slate-400">IA en pause</span>

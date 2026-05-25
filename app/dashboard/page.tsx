@@ -29,12 +29,6 @@ export default async function DashboardPage({
 
   const convs = (conversations ?? []) as Conversation[];
 
-  // Compte des archivées (pour afficher dans l'onglet)
-  const { count: archivedCount } = await supabase
-    .from("conversations")
-    .select("*", { count: "exact", head: true })
-    .eq("status", "closed");
-
   return (
     <>
       <RealtimeRefresh />
@@ -46,11 +40,6 @@ export default async function DashboardPage({
         </Tab>
         <Tab href="/dashboard?archive=1" active={showArchive}>
           Archive
-          {archivedCount && archivedCount > 0 && (
-            <span className="ml-1 text-[11px] text-slate-400 tabular-nums">
-              ({archivedCount})
-            </span>
-          )}
         </Tab>
       </div>
 

@@ -99,7 +99,7 @@ export function InboxList({
               onClick={enterSelection}
               className="text-xs text-slate-500 hover:text-slate-900 transition-colors"
             >
-              Sélectionner
+              {mode === "archive" ? "Désarchiver…" : "Archiver…"}
             </button>
           </>
         )}

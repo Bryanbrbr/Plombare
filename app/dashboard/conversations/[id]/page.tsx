@@ -57,29 +57,29 @@ export default async function ConversationPage({
 
       <Link
         href="/dashboard"
-        className="text-xs text-slate-500 hover:text-slate-900 inline-flex items-center gap-1 mb-3 transition-colors"
+        className="text-sm text-slate-500 hover:text-slate-900 inline-flex items-center gap-1 mb-3 transition-colors"
       >
         ← Conversations
       </Link>
 
-      {/* ── Header conversation, ultra compact ── */}
+      {/* ── Header conversation, compact ── */}
       <header className="mb-5">
         <div className="flex items-baseline justify-between gap-3 mb-0.5">
-          <h1 className="text-base font-semibold text-slate-900 truncate">
+          <h1 className="text-lg font-semibold text-slate-900 truncate">
             {conv.client_name ?? phone}
           </h1>
           {conv.status === "paused" && (
-            <span className="text-[11px] text-slate-400 shrink-0">
+            <span className="text-xs text-slate-400 shrink-0">
               IA en pause
             </span>
           )}
           {isClosed && (
-            <span className="text-[11px] text-slate-400 shrink-0">
+            <span className="text-xs text-slate-400 shrink-0">
               Archivée
             </span>
           )}
         </div>
-        <p className="text-xs text-slate-500">
+        <p className="text-sm text-slate-500">
           <a
             href={telLink}
             className="hover:text-slate-900 transition-colors tabular-nums"
@@ -90,7 +90,7 @@ export default async function ConversationPage({
 
         {/* Meta ligne unique discrète */}
         {metaParts.length > 0 && (
-          <p className="mt-3 text-xs text-slate-500">
+          <p className="mt-3 text-sm text-slate-500">
             {metaParts.join(" · ")}
           </p>
         )}
@@ -117,7 +117,7 @@ export default async function ConversationPage({
         <div className="flex gap-2 mb-2">
           <a
             href={telLink}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-colors"
+            className="inline-flex items-center gap-1.5 text-base font-medium text-slate-900 bg-slate-100 hover:bg-slate-200 px-3.5 py-2 rounded-lg transition-colors"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -128,7 +128,7 @@ export default async function ConversationPage({
             href={waLink}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-colors"
+            className="inline-flex items-center gap-1.5 text-base font-medium text-slate-900 bg-slate-100 hover:bg-slate-200 px-3.5 py-2 rounded-lg transition-colors"
           >
             WhatsApp
           </a>
@@ -188,7 +188,7 @@ function Bubble({
     <div className={`flex ${align}`}>
       <div className="max-w-[80%] sm:max-w-[75%]">
         <div
-          className={`${radius} px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${bubble}`}
+          className={`${radius} px-3.5 py-2 text-base leading-relaxed whitespace-pre-wrap ${bubble}`}
         >
           {message.body}
           {hasMedia && isVoice && (
@@ -220,7 +220,7 @@ function Bubble({
         </div>
         {!grouped && (
           <div
-            className={`text-[10px] text-slate-400 mt-0.5 px-1 ${
+            className={`text-[11px] text-slate-400 mt-0.5 px-1 ${
               isClient ? "text-left" : "text-right"
             }`}
           >

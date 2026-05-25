@@ -66,7 +66,7 @@ function Tab({
   return (
     <Link
       href={href}
-      className={`text-sm pb-3 -mb-3 border-b-2 transition-colors ${
+      className={`text-base pb-3 -mb-3 border-b-2 transition-colors ${
         active
           ? "text-slate-900 font-semibold border-slate-900"
           : "text-slate-500 hover:text-slate-900 border-transparent"
@@ -80,13 +80,13 @@ function Tab({
 function EmptyState({ archive }: { archive: boolean }) {
   return (
     <div className="py-20 text-center">
-      <p className="text-sm text-slate-500">
+      <p className="text-base text-slate-500">
         {archive
           ? "Aucune conversation archivée."
           : "Aucune demande pour l'instant."}
       </p>
       {!archive && (
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-sm text-slate-400 mt-1">
           Les messages clients apparaîtront ici.
         </p>
       )}

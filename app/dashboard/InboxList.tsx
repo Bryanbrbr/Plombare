@@ -73,31 +73,31 @@ export function InboxList({
   return (
     <>
       {/* ─── Barre du haut : compteur + actions ─── */}
-      <div className="flex items-center justify-between gap-3 mb-3 px-1 min-h-[28px]">
+      <div className="flex items-center justify-between gap-3 mb-3 px-1 min-h-[32px]">
         {selectionMode ? (
           <>
             <button
               onClick={cancelSelection}
-              className="text-sm text-slate-500 hover:text-slate-900 transition-colors"
+              className="text-base text-slate-500 hover:text-slate-900 transition-colors"
             >
               Annuler
             </button>
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-500">
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-slate-500">
                 {selected.size > 0
                   ? `${selected.size} sélectionnée${selected.size > 1 ? "s" : ""}`
                   : "Aucune"}
               </span>
               <button
                 onClick={selected.size === convs.length ? cancelSelection : selectAll}
-                className="text-xs text-slate-500 hover:text-slate-900 transition-colors"
+                className="text-sm text-slate-500 hover:text-slate-900 transition-colors"
               >
                 {selected.size === convs.length ? "Aucune" : "Tout"}
               </button>
               <button
                 onClick={handleBulkAction}
                 disabled={selected.size === 0 || pending}
-                className="text-sm font-medium text-blue-600 hover:text-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="text-base font-medium text-blue-600 hover:text-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 {pending ? "…" : actionLabel}
               </button>
@@ -105,12 +105,12 @@ export function InboxList({
           </>
         ) : (
           <>
-            <span className="text-xs text-slate-500">
+            <span className="text-sm text-slate-500">
               {convs.length} demande{convs.length > 1 ? "s" : ""}
             </span>
             <button
               onClick={enterSelection}
-              className="text-xs text-slate-500 hover:text-slate-900 transition-colors"
+              className="text-sm text-slate-500 hover:text-slate-900 transition-colors"
             >
               {mode === "archive" ? "Désarchiver…" : "Archiver…"}
             </button>
@@ -220,7 +220,7 @@ function Row({
               />
             )}
             <span
-              className={`text-sm truncate ${
+              className={`text-base truncate ${
                 isUnread
                   ? "font-semibold text-slate-900"
                   : isPaused
@@ -231,7 +231,7 @@ function Row({
               {conv.client_name ?? formatPhone(conv.client_number)}
             </span>
           </div>
-          <span className="text-[11px] text-slate-400 shrink-0 tabular-nums">
+          <span className="text-xs text-slate-400 shrink-0 tabular-nums">
             {formatRelative(conv.last_message_at)}
           </span>
         </div>
@@ -251,7 +251,7 @@ function Row({
             {rdvSuffix}
           </p>
           {isPaused && (
-            <span className="text-[11px] text-slate-400 shrink-0">
+            <span className="text-xs text-slate-400 shrink-0">
               en pause
             </span>
           )}
@@ -263,7 +263,7 @@ function Row({
   // En mode sélection : la row entière est un bouton qui toggle la case.
   // Sinon : Link vers le détail.
   const rowClass =
-    "block w-full text-left px-3.5 py-3 rounded-lg bg-slate-100 hover:bg-slate-200 active:bg-slate-300 transition-colors";
+    "block w-full text-left px-4 py-3.5 rounded-lg bg-slate-100 hover:bg-slate-200 active:bg-slate-300 transition-colors";
 
   return selectionMode ? (
     <button onClick={onToggle} className={rowClass}>

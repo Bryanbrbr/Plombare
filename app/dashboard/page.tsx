@@ -34,7 +34,7 @@ export default async function DashboardPage() {
       {convs.length === 0 ? (
         <EmptyState />
       ) : (
-        <ul className="divide-y divide-slate-100">
+        <ul className="space-y-1">
           {convs.map((c) => (
             <ConversationRow key={c.id} conv={c} />
           ))}
@@ -68,7 +68,7 @@ function ConversationRow({ conv }: { conv: Conversation }) {
     <li>
       <Link
         href={`/dashboard/conversations/${conv.id}`}
-        className="block px-2 py-3 -mx-2 rounded-lg hover:bg-slate-50 transition-colors"
+        className="block px-3 py-3 rounded-lg bg-slate-50 hover:bg-slate-100 active:bg-slate-200 transition-colors"
       >
         <div className="flex items-baseline justify-between gap-3 mb-0.5">
           <span

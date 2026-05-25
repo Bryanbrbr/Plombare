@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { formatPhone, formatTime, parisDayKey } from "@/lib/format";
 import type { Conversation, Message } from "@/lib/types";
 import { ReplyBox } from "./ReplyBox";
+import { MarkSeen } from "./MarkSeen";
+import { ArchiveButton } from "./ArchiveButton";
 import { RealtimeRefresh } from "@/components/RealtimeRefresh";
 
 export const dynamic = "force-dynamic";
@@ -45,9 +47,13 @@ export default async function ConversationPage({
     );
   if (conv.needs_appointment) metaParts.push("RDV demandé");
 
+  const isClosed = conv.status === "closed";
+
   return (
     <>
       <RealtimeRefresh filter={`conversation_id=eq.${conv.id}`} />
+      {/* Marque la conv comme lue dès le montage */}
+      <MarkSeen conversationId={conv.id} />
 
       <Link
         href="/dashboard"
@@ -65,6 +71,11 @@ export default async function ConversationPage({
           {conv.status === "paused" && (
             <span className="text-[11px] text-slate-400 shrink-0">
               IA en pause
+            </span>
+          )}
+          {isClosed && (
+            <span className="text-[11px] text-slate-400 shrink-0">
+              Archivée
             </span>
           )}
         </div>
@@ -96,6 +107,9 @@ export default async function ConversationPage({
           >
             WhatsApp
           </a>
+          <div className="ml-auto">
+            <ArchiveButton conversationId={conv.id} isClosed={isClosed} />
+          </div>
         </div>
 
         {/* Meta ligne unique discrète */}

@@ -248,6 +248,12 @@ ${link}`,
 
   const history = (historyRows ?? []).reverse().slice(0, -1);
 
+  // Première réponse de l'IA ? = aucun message 'ai' ou 'artisan' dans l'historique.
+  // Si oui, on demandera à Claude d'ajouter la mention RGPD obligatoire.
+  const isFirstReply = !history.some(
+    (m) => m.role === "ai" || m.role === "artisan"
+  );
+
   // ─── 11. Appel Claude ─────────────────────────────────────
   let qualification;
   try {
@@ -255,6 +261,7 @@ ${link}`,
       artisanName: artisan.name,
       history,
       newMessage: { body, mediaUrls: imageMediaUrls },
+      isFirstReply,
     });
   } catch (err) {
     console.error("[webhook] Claude a échoué", err);

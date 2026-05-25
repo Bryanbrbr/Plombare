@@ -24,6 +24,7 @@ export type Conversation = {
   status: ConversationStatus;
   summary: string | null;
   last_message_at: string;
+  last_seen_at: string | null;   // dernière ouverture par l'artisan
   created_at: string;
 };
 

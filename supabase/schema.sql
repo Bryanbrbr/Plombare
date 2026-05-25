@@ -34,6 +34,10 @@ create table if not exists conversations (
 create index if not exists conversations_artisan_recent_idx
   on conversations(artisan_id, last_message_at desc);
 
+-- last_seen_at : dernière fois que l'artisan a ouvert cette conversation.
+-- Sert à marquer les conversations 'non lues' (last_message_at > last_seen_at).
+alter table conversations add column if not exists last_seen_at timestamptz;
+
 -- ── MESSAGES (tous les messages des deux sens) ──────────────
 create table if not exists messages (
   id uuid primary key default gen_random_uuid(),

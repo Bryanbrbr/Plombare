@@ -117,6 +117,11 @@ export async function analyze(opts: {
   artisanName: string;
   history: HistoryMessage[];
   newMessage: { body: string; mediaUrls: string[] };
+  /**
+   * true si c'est la TOUTE PREMIÈRE réponse de l'IA dans cette conversation.
+   * Active la mention RGPD (obligatoire en France/UE depuis l'AI Act).
+   */
+  isFirstReply: boolean;
 }): Promise<Qualification> {
   const messages = buildHistory(opts.history);
 
@@ -164,10 +169,17 @@ export async function analyze(opts: {
     messages.push({ role: "user", content: newContent });
   }
 
+  const systemBase = SYSTEM_PROMPT.replace("{ARTISAN}", opts.artisanName);
+  // Mention RGPD : forcée UNIQUEMENT pour la 1re réponse de la conversation.
+  // Garantit la transparence sur le fait que c'est une IA (AI Act 2026, RGPD).
+  const system = opts.isFirstReply
+    ? `${systemBase}\n\n⚠️ MENTION LÉGALE — c'est ta TOUTE première réponse à ce client dans cette conversation. Tu DOIS commencer ton message par cette phrase exacte, sans rien la modifier : "Bonjour, je suis l'assistant automatique de ${opts.artisanName}." Puis va à la ligne et enchaîne naturellement ta réponse normale (empathie, conseils, demande de photo si pertinent…). Cette mention est non négociable.`
+    : systemBase;
+
   const response = await anthropic.messages.create({
     model: MODEL,
     max_tokens: 1024,
-    system: SYSTEM_PROMPT.replace("{ARTISAN}", opts.artisanName),
+    system,
     tools: [QUALIFY_TOOL],
     tool_choice: { type: "tool", name: "qualify_request" },
     messages,

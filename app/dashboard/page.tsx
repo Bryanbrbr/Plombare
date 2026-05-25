@@ -68,7 +68,7 @@ function ConversationRow({ conv }: { conv: Conversation }) {
     <li>
       <Link
         href={`/dashboard/conversations/${conv.id}`}
-        className="block px-3 py-3 rounded-lg bg-slate-50 hover:bg-slate-100 active:bg-slate-200 transition-colors"
+        className="block px-3.5 py-3 rounded-lg bg-slate-100 hover:bg-slate-200 active:bg-slate-300 transition-colors"
       >
         <div className="flex items-baseline justify-between gap-3 mb-0.5">
           <span

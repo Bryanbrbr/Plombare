@@ -55,7 +55,8 @@ const QUALIFY_TOOL: Anthropic.Tool = {
       },
       summary: {
         type: "string",
-        description: "Résumé en 1 phrase pour le plombier (qui, quoi, où si connu)",
+        description:
+          "Résumé ULTRA court (5-8 mots max), juste le problème nu, sans contexte ni urgence. Exemples : 'Fuite sous évier cuisine', 'WC bouché', 'Plus d'eau chaude', 'Robinet salle de bain qui goutte', 'Devis remplacement chauffe-eau'. Pas de verbe conjugué long, pas de 'le client a une...', juste le pb.",
       },
       reply_to_client: {
         type: "string",

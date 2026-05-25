@@ -39,83 +39,83 @@ export function ReplyBox({
   }
 
   return (
-    <div className="mt-6 mb-4">
-      {/* Bandeau état IA */}
-      {status === "paused" ? (
-        <div className="flex items-center justify-between gap-3 bg-slate-100 border border-slate-200 rounded-t-xl px-4 py-2.5 text-sm">
-          <span className="text-slate-600">
-            ⏸️ L'IA est en pause — c'est toi qui réponds.
-          </span>
+    <div className="mt-5 pt-3 border-t border-slate-100">
+      {status === "paused" && (
+        <div className="flex justify-between items-center mb-2 px-1">
+          <span className="text-[11px] text-slate-400">IA en pause</span>
           <button
             onClick={handleResume}
             disabled={pending}
-            className="shrink-0 text-blue-600 hover:text-blue-700 font-medium disabled:opacity-50"
+            className="text-[11px] text-blue-600 hover:text-blue-700 disabled:opacity-50"
           >
-            Redonner la main à l'IA
+            Réactiver l'IA
           </button>
-        </div>
-      ) : (
-        <div className="bg-blue-50 border border-blue-100 rounded-t-xl px-4 py-2.5 text-sm text-blue-800">
-          🤖 L'IA répond automatiquement. Si tu écris, elle se met en pause.
         </div>
       )}
 
-      {/* Zone de saisie */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
           handleSend();
         }}
-        className="border border-t-0 border-slate-200 rounded-b-xl bg-white p-3"
+        className="flex items-end gap-2"
       >
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => {
-            // Entrée = envoyer, Maj+Entrée = nouvelle ligne
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
               handleSend();
             }
           }}
-          placeholder="Écris ta réponse au client…"
-          rows={2}
+          placeholder="Écris au client…"
+          rows={1}
           disabled={pending}
-          className="w-full resize-none text-sm px-2 py-1.5 focus:outline-none disabled:opacity-50 placeholder:text-slate-400"
+          className="flex-1 resize-none text-sm bg-slate-100 rounded-2xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-slate-300 disabled:opacity-50 placeholder:text-slate-400 max-h-32"
+          style={{ minHeight: "40px" }}
         />
-        <div className="flex items-center justify-between gap-3 mt-2">
-          <span className="text-[11px] text-slate-400">
-            Envoyé au client sur WhatsApp.
-          </span>
-          <button
-            type="submit"
-            disabled={pending || !text.trim()}
-            className="rounded-lg bg-blue-600 text-white px-4 py-2 text-sm font-semibold hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-2"
-          >
-            {pending ? (
-              <>
-                <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                </svg>
-                Envoi…
-              </>
-            ) : (
-              <>
-                Envoyer
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="22" y1="2" x2="11" y2="13" />
-                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                </svg>
-              </>
-            )}
-          </button>
-        </div>
-        {error && (
-          <div className="mt-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-            {error}
-          </div>
-        )}
+        <button
+          type="submit"
+          disabled={pending || !text.trim()}
+          aria-label="Envoyer"
+          className="shrink-0 w-10 h-10 rounded-full bg-slate-900 text-white hover:bg-slate-800 active:bg-black disabled:opacity-30 disabled:cursor-not-allowed transition-colors inline-flex items-center justify-center"
+        >
+          {pending ? (
+            <svg
+              className="animate-spin"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+            </svg>
+          ) : (
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="22" y1="2" x2="11" y2="13" />
+              <polygon points="22 2 15 22 11 13 2 9 22 2" />
+            </svg>
+          )}
+        </button>
       </form>
+
+      {error && (
+        <div className="mt-2 text-[11px] text-red-600 px-1">{error}</div>
+      )}
     </div>
   );
 }

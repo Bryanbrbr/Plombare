@@ -27,7 +27,7 @@ export function ArchiveButton({
     <button
       onClick={handle}
       disabled={pending}
-      className="text-sm text-slate-500 hover:text-slate-900 disabled:opacity-50 transition-colors px-2 py-2"
+      className="text-base text-slate-500 hover:text-slate-900 disabled:opacity-50 transition-colors px-2 py-2.5"
     >
       {pending
         ? "…"

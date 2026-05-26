@@ -58,15 +58,15 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen bg-white">
       <header className="sticky top-0 z-10 bg-white border-b border-slate-100">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 text-base font-semibold text-slate-900 hover:opacity-80 transition-opacity"
+            className="inline-flex items-center gap-2 text-lg font-semibold text-slate-900 hover:opacity-80 transition-opacity"
           >
-            <Logo size={20} className="text-blue-600" />
+            <Logo size={24} className="text-blue-600" />
             Plombare
           </Link>
-          <div className="flex items-center gap-3 text-sm text-slate-500">
+          <div className="flex items-center gap-3 text-base text-slate-500">
             <span className="hidden sm:inline truncate max-w-[180px]">
               {artisan.name}
             </span>

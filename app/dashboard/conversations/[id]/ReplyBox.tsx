@@ -42,11 +42,11 @@ export function ReplyBox({
     <div>
       {status === "paused" && (
         <div className="flex justify-between items-center mb-2 px-1">
-          <span className="text-xs text-slate-400">IA en pause</span>
+          <span className="text-sm text-slate-400">IA en pause</span>
           <button
             onClick={handleResume}
             disabled={pending}
-            className="text-xs text-blue-600 hover:text-blue-700 disabled:opacity-50"
+            className="text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50"
           >
             Réactiver l'IA
           </button>
@@ -72,14 +72,14 @@ export function ReplyBox({
           placeholder="Écris au client…"
           rows={1}
           disabled={pending}
-          className="flex-1 resize-none text-base bg-slate-100 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-slate-300 disabled:opacity-50 placeholder:text-slate-400 max-h-32"
-          style={{ minHeight: "44px" }}
+          className="flex-1 resize-none text-lg bg-slate-100 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-slate-300 disabled:opacity-50 placeholder:text-slate-400 max-h-36"
+          style={{ minHeight: "48px" }}
         />
         <button
           type="submit"
           disabled={pending || !text.trim()}
           aria-label="Envoyer"
-          className="shrink-0 w-11 h-11 rounded-full bg-slate-900 text-white hover:bg-slate-800 active:bg-black disabled:opacity-30 disabled:cursor-not-allowed transition-colors inline-flex items-center justify-center"
+          className="shrink-0 w-12 h-12 rounded-full bg-slate-900 text-white hover:bg-slate-800 active:bg-black disabled:opacity-30 disabled:cursor-not-allowed transition-colors inline-flex items-center justify-center"
         >
           {pending ? (
             <svg
@@ -114,7 +114,7 @@ export function ReplyBox({
       </form>
 
       {error && (
-        <div className="mt-2 text-xs text-red-600 px-1">{error}</div>
+        <div className="mt-2 text-sm text-red-600 px-1">{error}</div>
       )}
     </div>
   );
